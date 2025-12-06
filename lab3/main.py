@@ -11,8 +11,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-user_modes = {}
-user_history = {}
 # Attempt to load a local .env file if python-dotenv is installed (optional)
 try:
     from dotenv import load_dotenv
@@ -29,6 +27,11 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not TOKENTG or not GROQ_API_KEY:
     logger.error("Required environment variables TOKENTG or GROQ_API_KEY are not set.")
     raise SystemExit("Missing required environment variables: TOKENTG and/or GROQ_API_KEY")
+
+client = Groq(api_key=GROQ_API_KEY)
+
+user_modes = {}
+user_history = {}
 
 def create_main_menu():
     keyboard = [
