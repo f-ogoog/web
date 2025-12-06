@@ -3,6 +3,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 from telegram.constants import ChatAction
 import logging
 from groq import Groq
+import os
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -28,8 +29,6 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not TOKENTG or not GROQ_API_KEY:
     logger.error("Required environment variables TOKENTG or GROQ_API_KEY are not set.")
     raise SystemExit("Missing required environment variables: TOKENTG and/or GROQ_API_KEY")
-
-
 
 def create_main_menu():
     keyboard = [
