@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket.io Chat</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 1200px;
+      height: 90vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Join Form Styles */
+    #joinForm {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      padding: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    #joinForm h1 {
+      color: white;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+
+    #joinForm input {
+      width: 100%;
+      max-width: 400px;
+      padding: 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    #joinForm button {
+      width: 100%;
+      max-width: 400px;
+      padding: 15px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      background: #ffd700;
+      color: #333;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    #joinForm button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+    }
+
+    /* Chat Interface */
+    #chatInterface {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: row;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: #2c3e50;
+      color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .room-info {
+      margin-bottom: 30px;
+    }
+
+    .room-info h2 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: #ecf0f1;
+    }
+
+    .room-name {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #3498db;
+      margin-bottom: 5px;
+    }
+
+    .username-display {
+      font-size: 0.9em;
+      color: #bdc3c7;
+    }
+
+    .users-section {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .users-section h3 {
+      font-size: 1em;
+      margin-bottom: 15px;
+      color: #ecf0f1;
+      border-bottom: 2px solid #34495e;
+      padding-bottom: 10px;
+    }
+
+    #usersList {
+      list-style: none;
+    }
+
+    #usersList li {
+      padding: 8px;
+      margin: 5px 0;
+      background: #34495e;
+      border-radius: 5px;
+      font-size: 0.9em;
+    }
+
+    /* Chat Area */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #ecf0f1;
+    }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: white;
+    }
+
+    #messages {
+      list-style: none;
+    }
+
+    #messages li {
+      margin: 15px 0;
+      padding: 12px 15px;
+      border-radius: 10px;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+
+    #messages li.message {
+      background: #e3f2fd;
+      margin-left: 0;
+    }
+
+    #messages li.message.own {
+      background: #c8e6c9;
+      margin-left: auto;
+      margin-right: 0;
+    }
+
+    #messages li.system {
+      background: #fff3cd;
+      text-align: center;
+      max-width: 100%;
+      font-style: italic;
+      color: #856404;
+    }
+
+    .message-username {
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 5px;
+      font-size: 0.9em;
+    }
+
+    .message-text {
+      color: #333;
+    }
+
+    .message-time {
+      font-size: 0.75em;
+      color: #7f8c8d;
+      margin-top: 5px;
+    }
+
+    /* Input Area */
+    .input-area {
+      padding: 20px;
+      background: white;
+      border-top: 2px solid #bdc3c7;
+      display: flex;
+      gap: 10px;
+    }
+
+    #messageInput {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #bdc3c7;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    #messageInput:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+
+    #sendButton {
+      padding: 12px 30px;
+      background: #ffd700;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    #sendButton:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+    }
+
+    #sendButton:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <!-- Join Form -->
+  <div id="joinForm">
+    <h1>Приєднатись до чату</h1>
+    <input type="text" id="usernameInput" placeholder="Введіть ваше ім'я" autocomplete="off" />
+    <input type="text" id="roomInput" placeholder="Введіть назву кімнати" autocomplete="off" />
+    <button id="joinButton">Приєднатись</button>
+  </div>
+
+  <!-- Chat Interface -->
+  <div id="chatInterface" class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="room-info">
+        <h2>Кімната</h2>
+        <div class="room-name" id="roomNameDisplay">-</div>
+        <div class="username-display" id="usernameDisplay">-</div>
+      </div>
+      <div class="users-section">
+        <h3>Користувачі в кімнаті</h3>
+        <ul id="usersList"></ul>
+      </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-area">
+      <div class="messages-container">
+        <ul id="messages"></ul>
+      </div>
+      <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Введіть повідомлення..." autocomplete="off" />
+        <button id="sendButton">Відправити</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+    $(function() {
+      var socket = io();
+      var currentUsername = '';
+      var currentRoom = '';
+
+      // Join room
+      $('#joinButton').click(function() {
+        var username = $('#usernameInput').val().trim();
+        var room = $('#roomInput').val().trim();
+
+        if (username && room) {
+          currentUsername = username;
+          currentRoom = room;
+          
+          socket.emit('join room', {
+            username: username,
+            room: room
+          });
+
+          $('#joinForm').hide();
+          $('#chatInterface').show();
+          $('#roomNameDisplay').text(room);
+          $('#usernameDisplay').text(username);
+        } else {
+          alert('Будь ласка, введіть ім\'я та назву кімнати');
+        }
+      });
+
+      // Enter key to join
+      $('#usernameInput, #roomInput').keypress(function(e) {
+        if (e.which === 13) {
+          $('#joinButton').click();
+        }
+      });
+
+      // Send message
+      function sendMessage() {
+        var message = $('#messageInput').val().trim();
+        if (message) {
+          socket.emit('chat message', {
+            username: currentUsername,
+            room: currentRoom,
+            message: message
+          });
+          $('#messageInput').val('');
+        }
+      }
+
+      $('#sendButton').click(sendMessage);
+      $('#messageInput').keypress(function(e) {
+        if (e.which === 13) {
+          sendMessage();
+        }
+      });
+
+      // Socket events
+      socket.on('chat message', function(data) {
+        var isOwn = data.username === currentUsername;
+        var messageClass = isOwn ? 'message own' : 'message';
+        var time = new Date().toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+        
+        var li = $('<li>').addClass(messageClass);
+        li.append($('<div>').addClass('message-username').text(data.username));
+        li.append($('<div>').addClass('message-text').text(data.message));
+        li.append($('<div>').addClass('message-time').text(time));
+        
+        $('#messages').append(li);
+        $('.messages-container').scrollTop($('.messages-container')[0].scrollHeight);
+      });
+
+      socket.on('user joined', function(data) {
+        var li = $('<li>').addClass('system');
+        li.text(data.username + ' приєднався до кімнати');
+        $('#messages').append(li);
+        $('.messages-container').scrollTop($('.messages-container')[0].scrollHeight);
+      });
+
+      socket.on('user left', function(data) {
+        var li = $('<li>').addClass('system');
+        li.text(data.username + ' покинув кімнату');
+        $('#messages').append(li);
+        $('.messages-container').scrollTop($('.messages-container')[0].scrollHeight);
+      });
+
+      socket.on('users in room', function(users) {
+        $('#usersList').empty();
+        users.forEach(function(user) {
+          var li = $('<li>').text(user);
+          if (user === currentUsername) {
+            li.css('background', '#3498db');
+            li.css('font-weight', 'bold');
+          }
+          $('#usersList').append(li);
+        });
+      });
+
+      socket.on('welcome', function(data) {
+        var li = $('<li>').addClass('system');
+        li.text('Ласкаво просимо, ' + data.username + '! Ви в кімнаті "' + data.room + '"');
+        $('#messages').append(li);
+      });
+    });
+  </script>
+</body>
+</html>

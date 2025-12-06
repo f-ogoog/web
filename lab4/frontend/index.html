@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 Бібліотека книг - CRUD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #000;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .books-section {
+            margin-top: 30px;
+        }
+
+        .books-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .books-header h2 {
+            color: #667eea;
+            font-size: 1.8em;
+        }
+
+        .search-box {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .book-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .book-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .book-info {
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .book-info strong {
+            color: #667eea;
+            margin-right: 5px;
+            min-width: 80px;
+        }
+
+        .book-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Бібліотека книг</h1>
+            <p>Система управління книгами - CRUD операції</p>
+        </header>
+
+        <div class="content">
+            <div id="alertContainer"></div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalBooks">0</div>
+                    <div class="stat-label">Всього книг</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgPrice">0₴</div>
+                    <div class="stat-label">Середня ціна</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="latestYear">-</div>
+                    <div class="stat-label">Найновіша книга</div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 id="formTitle">➕ Додати нову книгу</h2>
+                <form id="bookForm">
+                    <input type="hidden" id="bookId">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="title">Назва книги *</label>
+                            <input type="text" id="title" required placeholder="Введіть назву">
+                        </div>
+                        <div class="form-group">
+                            <label for="author">Автор *</label>
+                            <input type="text" id="author" required placeholder="Введіть автора">
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Рік видання</label>
+                            <input type="number" id="year" placeholder="2024">
+                        </div>
+                        <div class="form-group">
+                            <label for="isbn">ISBN</label>
+                            <input type="text" id="isbn" placeholder="978-617-xxx-xxx-x">
+                        </div>
+                        <div class="form-group">
+                            <label for="publisher">Видавництво</label>
+                            <input type="text" id="publisher" placeholder="Назва видавництва">
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Ціна (₴)</label>
+                            <input type="number" id="price" step="0.01" placeholder="150.00">
+                        </div>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Додати книгу</button>
+                        <button type="button" class="btn btn-secondary" id="cancelBtn" style="display: none;">Скасувати</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="books-section">
+                <div class="books-header">
+                    <h2>📖 Список книг (<span id="bookCount">0</span>)</h2>
+                    <input type="text" class="search-box" id="searchInput" placeholder="🔍 Пошук книг...">
+                </div>
+                <div id="booksContainer" class="books-grid">
+                    <div class="loading">Завантаження...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/books';
+        let books = [];
+        let editingBookId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBooks();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('bookForm').addEventListener('submit', handleSubmit);
+            document.getElementById('cancelBtn').addEventListener('click', cancelEdit);
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+        }
+
+        async function loadBooks() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                if (data.success) {
+                    books = data.data;
+                    displayBooks(books);
+                    updateStats(books);
+                }
+            } catch (error) {
+                showAlert('Помилка завантаження книг: ' + error.message, 'error');
+            }
+        }
+
+        function displayBooks(booksToDisplay) {
+            const container = document.getElementById('booksContainer');
+            document.getElementById('bookCount').textContent = booksToDisplay.length;
+
+            if (booksToDisplay.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                        </svg>
+                        <h3>Книг поки немає</h3>
+                        <p>Додайте першу книгу використовуючи форму вище</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = booksToDisplay.map(book => `
+                <div class="book-card">
+                    <h3>${book.title}</h3>
+                    <div class="book-info">
+                        <strong>Автор:</strong> ${book.author}
+                    </div>
+                    ${book.year_published ? `
+                        <div class="book-info">
+                            <strong>Рік:</strong> ${book.year_published}
+                        </div>
+                    ` : ''}
+                    ${book.isbn ? `
+                        <div class="book-info">
+                            <strong>ISBN:</strong> ${book.isbn}
+                        </div>
+                    ` : ''}
+                    ${book.publisher ? `
+                        <div class="book-info">
+                            <strong>Видавництво:</strong> ${book.publisher}
+                        </div>
+                    ` : ''}
+                    ${book.price ? `
+                        <div class="book-info">
+                            <strong>Ціна:</strong> ${parseFloat(book.price).toFixed(2)} ₴
+                        </div>
+                    ` : ''}
+                    <div class="book-actions">
+                        <button class="btn btn-edit" onclick="editBook(${book.id})">✏️ Редагувати</button>
+                        <button class="btn btn-delete" onclick="deleteBook(${book.id})">🗑️ Видалити</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(books) {
+            document.getElementById('totalBooks').textContent = books.length;
+            
+            if (books.length > 0) {
+                const avgPrice = books
+                    .filter(b => b.price)
+                    .reduce((sum, b) => sum + parseFloat(b.price), 0) / books.filter(b => b.price).length;
+                document.getElementById('avgPrice').textContent = avgPrice.toFixed(2) + '₴';
+                
+                const latestYear = Math.max(...books.filter(b => b.year_published).map(b => b.year_published));
+                document.getElementById('latestYear').textContent = latestYear > 0 ? latestYear : '-';
+            }
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+
+            const bookData = {
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value,
+                year_published: document.getElementById('year').value || null,
+                isbn: document.getElementById('isbn').value || null,
+                publisher: document.getElementById('publisher').value || null,
+                price: document.getElementById('price').value || null
+            };
+
+            try {
+                let response;
+                if (editingBookId) {
+                    response = await fetch(`${API_URL}/${editingBookId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(bookData)
+                    });
+                } else {
+                    response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(bookData)
+                    });
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    loadBooks();
+                    resetForm();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Помилка: ' + error.message, 'error');
+            }
+        }
+
+        function editBook(id) {
+            const book = books.find(b => b.id === id);
+            if (!book) return;
+
+            editingBookId = id;
+            document.getElementById('title').value = book.title;
+            document.getElementById('author').value = book.author;
+            document.getElementById('year').value = book.year_published || '';
+            document.getElementById('isbn').value = book.isbn || '';
+            document.getElementById('publisher').value = book.publisher || '';
+            document.getElementById('price').value = book.price || '';
+
+            document.getElementById('formTitle').textContent = '✏️ Редагувати книгу';
+            document.getElementById('submitBtn').textContent = 'Оновити книгу';
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function deleteBook(id) {
+            if (!confirm('Ви впевнені, що хочете видалити цю книгу?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    loadBooks();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Помилка видалення: ' + error.message, 'error');
+            }
+        }
+
+        function cancelEdit() {
+            resetForm();
+        }
+
+        function resetForm() {
+            editingBookId = null;
+            document.getElementById('bookForm').reset();
+            document.getElementById('formTitle').textContent = '➕ Додати нову книгу';
+            document.getElementById('submitBtn').textContent = 'Додати книгу';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function handleSearch(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = books.filter(book => 
+                book.title.toLowerCase().includes(searchTerm) ||
+                book.author.toLowerCase().includes(searchTerm) ||
+                (book.publisher && book.publisher.toLowerCase().includes(searchTerm))
+            );
+            displayBooks(filtered);
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

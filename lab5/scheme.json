@@ -1,0 +1,249 @@
+{
+  "info": {
+    "name": "Library GraphQL API",
+    "_postman_id": "library-graphql-api",
+    "description": "Повна колекція для GraphQL API бібліотеки з усіма запитами та мутаціями",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Queries",
+      "item": [
+        {
+          "name": "Get All Books",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { books { success count books { id title author year_published isbn publisher price created_at updated_at } } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Отримати всі книги з бібліотеки"
+          }
+        },
+        {
+          "name": "Get Book By ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { book(id: \\\"1\\\") { id title author year_published isbn publisher price created_at updated_at } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Отримати книгу за ID"
+          }
+        },
+        {
+          "name": "Search Books By Author",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { booksByAuthor(author: \\\"Шевченко\\\") { id title author year_published isbn publisher price created_at updated_at } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Пошук книг за автором (частковий пошук, case-insensitive)"
+          }
+        },
+        {
+          "name": "Search Books By Publisher",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { booksByPublisher(publisher: \\\"Фоліо\\\") { id title author year_published isbn publisher price created_at updated_at } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Пошук книг за видавництвом (частковий пошук, case-insensitive)"
+          }
+        },
+        {
+          "name": "Search Books By Year",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { booksByYear(year: 1840) { id title author year_published isbn publisher price created_at updated_at } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Пошук книг за роком видання"
+          }
+        }
+      ],
+      "description": "GraphQL запити для отримання даних"
+    },
+    {
+      "name": "Mutations",
+      "item": [
+        {
+          "name": "Create Book - Full",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation { createBook(input: { title: \\\"Захар Беркут\\\", author: \\\"Іван Франко\\\", year_published: 1883, isbn: \\\"978-617-585-999-8\\\", publisher: \\\"Фоліо\\\", price: 165.50 }) { success message book { id title author year_published isbn publisher price created_at updated_at } } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Створити нову книгу з усіма полями"
+          }
+        },
+        {
+          "name": "Create Book - Minimal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation { createBook(input: { title: \\\"Нова книга\\\", author: \\\"Новий автор\\\" }) { success message book { id title author year_published isbn publisher price } } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Створити нову книгу з мінімальними обов'язковими полями (title, author)"
+          }
+        },
+        {
+          "name": "Update Book - Price",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation { updateBook(id: \\\"1\\\", input: { price: 200.00 }) { success message book { id title author price updated_at } } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Оновити ціну книги"
+          }
+        },
+        {
+          "name": "Update Book - Multiple Fields",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation { updateBook(id: \\\"1\\\", input: { title: \\\"Оновлена назва\\\", author: \\\"Оновлений автор\\\", year_published: 2024, price: 250.00 }) { success message book { id title author year_published isbn publisher price updated_at } } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Оновити кілька полів книги одночасно"
+          }
+        },
+        {
+          "name": "Delete Book",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation { deleteBook(id: \\\"5\\\") { success message book { id title author } } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Видалити книгу за ID"
+          }
+        }
+      ],
+      "description": "GraphQL мутації для зміни даних"
+    }
+  ]
+}
